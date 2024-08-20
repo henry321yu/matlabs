@@ -1,0 +1,73 @@
+%% threshold filter waves (for pipe measuring)
+close all
+
+% T0=1106700; %481.5cm 36v 1.4m
+% T1=1119000;
+T0=1177000; %481.5cm 36v 1.4m
+T1=1182000;
+
+x=m(:,1);
+y=m(:,2);
+z=m(:,3);
+
+waveN=75;
+useddata=z; % 用來判斷的數據
+filtCutOff = 0.8; % 高通判斷數據使可判斷波峰谷
+[b, a] = butter(1, (2*filtCutOff)/(1/0.01), 'low');
+useddataL = filtfilt(b, a, useddata);
+
+
+testdata=useddataL(T0:T1);
+IndMin=find(diff(sign(diff(testdata)))>0);  %獲得局部最小值的位置(可微調位置
+IndMax=find(diff(sign(diff(testdata)))<0);  %獲得局部最大值的位置
+
+magmin=IndMin; % 彌補時間差
+magmax=IndMax;
+
+hold on
+% plot(useddata)
+% plot(useddataL)
+% plot(magmin+T0,useddata(magmin+T0),'r^') % 標示在原數據 彌補時間差
+% plot(magmax+T0,useddata(magmax+T0),'k*')
+
+plot(useddata(T0:T1))
+plot(useddataL(T0:T1))
+plot(magmin,useddata(magmin+T0),'r^') % 標示在原數據 彌補時間差
+plot(magmax,useddata(magmax+T0),'k*')
+
+tag=[magmax magmin]; % 檢查位置
+tag=reshape (tag, 1, numel(tag));
+tag=sort(tag,'ascend');
+% set(gca, 'xtick', tag);
+% grid on
+% hold off
+% xlabel('Time')
+% ylabel('mag、acc、encoder')
+
+magmax=magmax+T0;
+magmin=magmin+T0;
+
+ew(k,:)=0;
+for i=1:waveN %每個位置磁力平均值
+    wxa(i)=x(magmax(i));wxb(i)=x(magmin(i));
+    wya(i)=y(magmax(i));wyb(i)=y(magmin(i));
+    wza(i)=z(magmax(i));wzb(i)=z(magmin(i));
+    
+    wx(i)=x(magmax(i))-x(magmin(i));
+    wy(i)=y(magmax(i))-y(magmin(i));
+    wz(i)=z(magmax(i))-z(magmin(i));
+
+    ew(i)=sqrt(mean(wx(i))^2+mean(wy(i))^2+mean(wz(i))^2);
+end
+ews=[wx wy wz];
+% ew
+% mean(ews)
+% mean(ew)
+
+pw=mean(wza)
+pw2=mean(wzb)
+kk=[1 T1-T0;pw pw]';
+plot(kk(:,1),kk(:,2))
+kk2=[1 T1-T0;pw2 pw2]';
+plot(kk2(:,1),kk2(:,2))
+hold off

@@ -1,0 +1,157 @@
+close all %Encoder_2 轉 找波峰波谷
+
+T0=1106700; %481.5cm 36v 1.4m  4.2374uT z=3.9833uT
+T1=1119000;
+% T0=1129710; %481.5cm 48v 1.4m  5.4224uT z=5.1215uT
+% T1=1133100;
+% T0=1177000; %481.5cm 36v 1m  4.3239 uT z=3.7490uT
+% T1=1185000;
+
+x=m(:,1);
+y=m(:,2);
+z=m(:,3);
+
+testdata=z(T0:T1);
+inputEncoder = [t(T0:T1) testdata];
+Encoder_threshold=3; % 參數須設定
+waveN=(T1-T0)/100*2-5; %2Hz
+
+[N a2]=size(inputEncoder);
+
+peak_max=inputEncoder(1,2);
+peak_min=inputEncoder(1,2);
+
+condition=0;
+NO_peak_max=0;
+NO_peak_min=0;
+peak_max_i=zeros(N,1);
+peak_min_i=zeros(N,1);
+for i=1:N    
+    if condition==0 % 剛開始的時候
+        if peak_max<inputEncoder(i,2)
+            peak_max=inputEncoder(i,2);
+            peak_max_i_temp=i;
+        end
+        if peak_min>inputEncoder(i,2)
+            peak_min=inputEncoder(i,2);
+            peak_min_i_temp=i;
+        end
+        if peak_max-peak_min>Encoder_threshold......
+                && inputEncoder(i,2)<inputEncoder(1,2)
+            condition=2;
+            NO_peak_max=NO_peak_max+1;
+            peak_max_i(NO_peak_max,1)=peak_max_i_temp;
+            peak_max=peak_min;
+        end
+        if abs(inputEncoder(i,2)-peak_min)>Encoder_threshold......
+                && inputEncoder(i,2)>inputEncoder(1,2)
+            condition=1;
+            NO_peak_min=NO_peak_min+1;
+            peak_min_i(NO_peak_min,1)=peak_min_i_temp;
+            peak_min=peak_max;
+        end
+    end
+    
+    if condition==1 % 編碼器的磁力強度在平均值之上 正在找尋波峰值
+        if peak_max<inputEncoder(i,2)
+            peak_max=inputEncoder(i,2);
+            peak_max_i_temp=i;
+        end
+        if peak_min>inputEncoder(i,2)
+            peak_min=inputEncoder(i,2);
+            peak_min_i_temp=i;
+        end
+        if peak_max-peak_min>Encoder_threshold
+            condition=2;
+            NO_peak_max=NO_peak_max+1;
+            peak_max_i(NO_peak_max,1)=peak_max_i_temp;
+            peak_max=peak_min;
+        end
+    end
+    
+    if condition==2 % 編碼器的磁力強度在平均值之下 正在找尋波谷值
+        if peak_max<inputEncoder(i,2)
+            peak_max=inputEncoder(i,2);
+            peak_max_i_temp=i;
+        end
+        if peak_min>inputEncoder(i,2)
+            peak_min=inputEncoder(i,2);
+            peak_min_i_temp=i;
+        end
+        if peak_max-peak_min>Encoder_threshold
+            condition=1;
+            NO_peak_min=NO_peak_min+1;
+            peak_min_i(NO_peak_min,1)=peak_min_i_temp;
+            peak_min=peak_max;
+        end
+    end
+    
+end
+peak_max_i=peak_max_i(1:NO_peak_max,1);
+peak_min_i=peak_min_i(1:NO_peak_min,1);
+
+hold on
+plot(t,m(:,1))
+plot(t,m(:,2))
+plot(t,m(:,3))
+
+plot(inputEncoder(:,1),inputEncoder(:,2));
+plot(inputEncoder(peak_max_i(:,1),1),inputEncoder(peak_max_i(:,1),2),'*');
+plot(inputEncoder(peak_min_i(:,1),1),inputEncoder(peak_min_i(:,1),2),'+');
+
+magmax=peak_max_i+T0-1;
+magmin=peak_min_i+T0-1;
+wxa=[];wxb=[];wya=[];wyb=[];wza=[];wzb=[];
+wx=[];wy=[];wz=[];ew=[];
+
+for i=1:waveN %每個位置磁力平均值
+    wxa(i)=x(magmax(i));wxb(i)=x(magmin(i));
+    wya(i)=y(magmax(i));wyb(i)=y(magmin(i));
+    wza(i)=z(magmax(i));wzb(i)=z(magmin(i));
+    
+    wx(i)=x(magmax(i))-x(magmin(i));
+    wy(i)=y(magmax(i))-y(magmin(i));
+    wz(i)=z(magmax(i))-z(magmin(i));
+
+    ew(i)=sqrt(mean(wx(i))^2+mean(wy(i))^2+mean(wz(i))^2);
+end
+ews=[wx wy wz];
+ew;
+mean(ews);
+mean(ew)
+mean(wza)-mean(wzb)
+
+pwz=mean(wza);
+pwz2=mean(wzb);
+pwy=mean(wya);
+pwy2=mean(wyb);
+pwx=mean(wxa);
+pwx2=mean(wxb);
+kk=[inputEncoder(1,1) inputEncoder((end),1);pwz pwz]';
+plot(kk(:,1),kk(:,2))
+kk2=[inputEncoder(1,1) inputEncoder((end),1);pwz2 pwz2]';
+plot(kk2(:,1),kk2(:,2))
+kk=[inputEncoder(1,1) inputEncoder((end),1);pwy pwy2]';
+plot(kk(:,1),kk(:,2))
+kk2=[inputEncoder(1,1) inputEncoder((end),1);pwy2 pwy2]';
+plot(kk2(:,1),kk2(:,2))
+kk=[inputEncoder(1,1) inputEncoder((end),1);pwx pwx]';
+plot(kk(:,1),kk(:,2))
+kk2=[inputEncoder(1,1) inputEncoder((end),1);pwx2 pwx2]';
+plot(kk2(:,1),kk2(:,2))
+
+
+tag=[inputEncoder(peak_max_i(:,1),1) inputEncoder(peak_min_i(:,1),1)]; % 檢查位置
+tag=reshape (tag, 1, numel(tag));
+tag=sort(tag,'ascend');
+
+[~,aa]=size(tag);
+tagg=[];
+for i=2:aa
+    if tag(i)~=tag(i-1)
+        tagg(end+1)=tag(i);
+    end
+end
+set(gca, 'xtick', tagg);
+grid on
+hold off
