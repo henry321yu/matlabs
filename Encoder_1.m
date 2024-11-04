@@ -1,23 +1,24 @@
-clear all
+function [Encoder_X,turning_velocity,turning_degree] = Encoder_1( inputEncoder ,Encoder_threshold)
+% clear all
 
 % 輸入編碼器量測結果inputEncoder，
 % 解算出 速度歷時turning_velocity 與 累積位移量歷時Encoder_X
 
 % inputEncoder = load('inputEncoder.txt'); % 編碼器量測數據 須設定
-% mo = load('C:\Users\sgrc-325\OneDrive - 國立成功大學 National Cheng Kung University\桌面\temp\log526.csv');
-mo=load('C:\Users\sgrc-325\Desktop\git\pipes\data\1101_1.CSV');  %DOHZ car run 4hz*2 0.7m 12v 24v
-moo=mo(389000:392000,:);
-
-inputEncoder = [moo(:,1) moo(:,19)];
-% Encoder_threshold=30; % 參數須設定
-% circumference=0.66; % 輪子周長(公尺) 須設定
-Encoder_threshold=70; % 參數須設定
-circumference=0.29; % 輪子周長(公尺) 須設定
+% mo=load('C:\Users\henry chen\Desktop\magtest\proj\2 6 hall\LOG20.txt');
+% inputEncoder = [mo(:,1) mo(:,30)];
+% Encoder_threshold=10; % 參數須設定
+% circumference= 0.078671875; %測試反推 % 輪子周長(公尺) 須設定  %%%機構件
+% circumference= 0.07853981633974483096156608458199; %外徑推
+circumference= 0.29; %測試反推 % 輪子周長(公尺) 須設定  %%% 3D列印小車
+% circumference= 0.305; %測試反推 % 輪子周長(公尺) 須設定  %%% 鋁手推車
 
 [N a2]=size(inputEncoder);
 
 peak_max=inputEncoder(1,2);
 peak_min=inputEncoder(1,2);
+peak_max_i_temp=0;
+peak_min_i_temp=0;
 
 condition=0;
 NO_peak_max=0;
@@ -25,7 +26,6 @@ NO_peak_min=0;
 peak_max_i=zeros(N,1);
 peak_min_i=zeros(N,1);
 for i=1:N
-    
     if condition==0 % 剛開始的時候
         if peak_max<inputEncoder(i,2)
             peak_max=inputEncoder(i,2);
@@ -36,14 +36,16 @@ for i=1:N
             peak_min_i_temp=i;
         end
         if peak_max-peak_min>Encoder_threshold......
-                && inputEncoder(i,2)<inputEncoder(1,2)
+                && inputEncoder(i,2)<inputEncoder(1,2)......
+                && peak_max_i_temp>0 %2 21加的
             condition=2;
             NO_peak_max=NO_peak_max+1;
             peak_max_i(NO_peak_max,1)=peak_max_i_temp;
             peak_max=peak_min;
         end
         if abs(inputEncoder(i,2)-peak_min)>Encoder_threshold......
-                && inputEncoder(i,2)>inputEncoder(1,2)
+                && inputEncoder(i,2)>inputEncoder(1,2)......
+                && peak_min_i_temp>0 %2 21加的
             condition=1;
             NO_peak_min=NO_peak_min+1;
             peak_min_i(NO_peak_min,1)=peak_min_i_temp;
@@ -142,25 +144,17 @@ for i=2:N-1
     turning_velocity(i,1)=ave_degree/360*circumference/dis_time; % 速度歷時
     Encoder_X(i+1,1)=Encoder_X(i,1)+ave_degree/360*circumference; % 累積位移量歷時
 end
-
-close all
+% Encoder_X(i)
 
 figure(1)
-hold on
 plot(inputEncoder(:,1),inputEncoder(:,2));
+hold on
 plot(inputEncoder(peak_max_i(:,1),1),inputEncoder(peak_max_i(:,1),2),'*');
+hold on
 plot(inputEncoder(peak_min_i(:,1),1),inputEncoder(peak_min_i(:,1),2),'+');
-hold off
-title('hall sensor');
-
-figure(2)
-plot(inputEncoder(:,1),turning_degree(:,1));
-title('turning degree');
-
-figure(3)
-plot(inputEncoder(:,1),turning_velocity(:,1));
-title('turning velocity');
-
-figure(4)
-plot(inputEncoder(:,1),Encoder_X(:,1));
-title('position');
+% figure(2)
+% plot(inputEncoder(:,1),turning_degree(:,1));
+% figure(3)
+% plot(inputEncoder(:,1),turning_velocity(:,1));
+% figure(4)
+% plot(inputEncoder(:,1),Encoder_X(:,1));
