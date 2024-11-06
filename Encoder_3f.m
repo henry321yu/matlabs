@@ -1,4 +1,4 @@
-function [Encoder_X,turning_velocity,turning_degree,averageV] = Encoder_3f( inputEncoder ,Encoder_threshold)
+function [Encoder_X,turning_velocity,turning_degree,averageV] = Encoder_3f( inputEncoder ,Encoder_threshold,circumference)
 % clear all
 
 % Load and preprocess input data
@@ -8,7 +8,7 @@ function [Encoder_X,turning_velocity,turning_degree,averageV] = Encoder_3f( inpu
 
 % Define parameters
 % Encoder_threshold = 70; % Threshold for peak detection
-circumference = 0.29045;   % Wheel circumference in meters
+% circumference = 0.29045;   % Wheel circumference in meters
 
 % Initialize variables
 [N, ~] = size(inputEncoder);
@@ -19,7 +19,6 @@ NO_peak_max = 0;
 NO_peak_min = 0;
 peak_max_i = zeros(N, 1);
 peak_min_i = zeros(N, 1);
-
 % Detect peaks and valleys
 for i = 1:N
     if condition == 0  % Initial state
