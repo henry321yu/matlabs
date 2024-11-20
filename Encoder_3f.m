@@ -133,7 +133,7 @@ for i = 2:N-1
 end
 
 % Smooth turning_velocity
-turning_velocity = smoothdata(turning_velocity, 'movmean', 100);
+turning_velocity = smoothdata(turning_velocity, 'movmean', 50);
 
 for i = 2:N-1
     dis_time = (inputEncoder(i+1, 1) - inputEncoder(i-1, 1)) / 2;
