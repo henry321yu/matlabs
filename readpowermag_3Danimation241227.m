@@ -154,8 +154,8 @@ for i = 1:length(x_r)
     % 更新數據
     set(h, 'XData', x_r(1:i), 'YData', y_r(1:i), 'ZData', altcm1(1:i));
         view([0.0 90.0]) %俯視角
-%     view([-20.0 10.0]) %俯視角
-    if mod(i, 1) == 0  % 每50幀更新一次
+%     view([-20.0 10.0]) %斜視角
+    if mod(i, 1) == 0  % 每1幀更新一次
         drawnow;
     end
 end
