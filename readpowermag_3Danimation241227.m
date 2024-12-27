@@ -6,6 +6,7 @@ basePath = 'C:\Users\sgrc-325\Desktop\git\pipes\data\p test\';
 % fileNames = {'1226_0P.CSV'};  %stop
 % fileNames = {'1226_6P.CSV'};  %stop
 fileNames = {'1227_0P.CSV'};  %num fix 40 sqaur
+% fileNames = {'1227_1P.CSV'};  %stop
 % fileNames = {   %multiple data
 %     '1224_2P.CSV', ...
 %     '1224_3P.CSV', 
@@ -17,10 +18,12 @@ for i = 1:length(fileNames)
     tempData = readtable(filePath, 'Delimiter', ',', 'ReadVariableNames', false);
     allData = [allData; tempData]; % 將每個表格資料合併
 end
+%%
 
 moData=allData;
-%%
-moData=allData(2000:end,:);
+
+moData=allData(2000:end,:); %1227_0P.CSV
+% moData=allData(100:end,:); %1227_1P
 % moData=allData(2500:3200,:);
 mo=[moData.Var1 moData.Var1 moData.Var1 moData.Var4 moData.Var5 moData.Var6 moData.Var7 moData.Var8 moData.Var9 moData.Var10 moData.Var11 moData.Var12 moData.Var13 moData.Var14 moData.Var15 moData.Var16 moData.Var17 moData.Var18 moData.Var19 moData.Var20];
 
@@ -49,36 +52,9 @@ GG=sqrt(gyr1(:,1).^2+gyr1(:,2).^2+gyr1(:,3).^2);
 mm4=sqrt(m(:,1).^2+m(:,2).^2+m(:,3).^2);
 stdd=std(mo)'; %看標準差
 
-close all
-tt = time_rtc;
-% tt = time_gps;
+% tt = time_rtc;
+tt = time_gps;
 
-figure(1)
-plot(tt,GG)
-figure(2)
-plot(tt,aG)
-figure(3)
-plot(tt,mm4)
-
-figure(4)
-plot(tt,m(:,1))
-figure(5)
-plot(tt,m(:,2))
-figure(6)
-plot(tt,m(:,3))
-
-figure(7)
-plot(tt,lon)
-figure(8)
-plot(tt,lat)
-figure(9)
-plot(tt,alt)
-figure(10)
-plot(lon,lat,'.')
-axis equal;
-figure(11)
-plot3(lon*100000,lat*100000,alt,'.')
-axis equal;
 %%
 close all
 % 設定投影參數，使用台灣西部二度分帶的 TWD97 座標系
@@ -105,37 +81,35 @@ for i=1:No
     end
 end
 
-figure(1)
-p=plot(x1,y1,'.');
-axis equal;
-pgca = gca; % 取得當前座標軸
-agca.XAxis.Exponent = 0; % 禁止顯示科學記數法
-agca.YAxis.Exponent = 0;
-xtickformat('%.2f'); % 軸顯示到小數點後3位
-ytickformat('%.2f');
-p.DataTipTemplate.DataTipRows(1).Format = '%.5f'; % 軸DataTip顯示到小數點後8位
-p.DataTipTemplate.DataTipRows(2).Format = '%.5f';
+fprintf(['標準差 :\n' ...
+    'x: %.3fcm,y :%.3fcm,alt: %.3fcm\n' ...
+    '測試時長: %.2f 秒\n'], ...
+    std(x),std(y),std(altcm),t(end));
 
-std(x1)
-std(y1)
-std(altcm1)
-t(end)
 fprintf('%s to %s\n', datestr(time_rtc(1)), datestr(time_rtc(end)));
 
 figure(2)
-plot(x1,'.')
+plot(tt,x,'.')
+ylabel('TM2 x(cm)');
 figure(3)
-plot(y1,'.')
+plot(tt,y,'.')
+ylabel('TM2 y(cm)');
 figure(4)
-plot(altcm1,'.')
+plot(tt,altcm1,'.')
+ylabel('Altitude(cm)');
 
 figure(5)
-plot(x1,y1,'.')
+plot(x,y,'.')
+xlabel('TM2 x(cm)');
+ylabel('TM2 y(cm)');
 grid on;
 axis equal;
 
 figure(6)
-plot3(x1,y1,altcm1,'.')
+plot3(x,y,altcm1,'.')
+xlabel('TM2 x(cm)');
+ylabel('TM2 y(cm)');
+zlabel('Altitude(cm)');
 grid on;
 axis equal;
 
@@ -143,35 +117,44 @@ axis equal;
 theta_deg = 20;  % 旋轉角度設定為 30 度
 theta = deg2rad(theta_deg);  % 轉換為弧度
 R = [cos(theta), -sin(theta); sin(theta), cos(theta)];
-rotated_coords = R * [x1; y1];
+rotated_coords = R * [x'; y'];
 x_r = rotated_coords(1, :);
 y_r = rotated_coords(2, :);
 
 figure(7)
-plot3(x_r,y_r,altcm1,'.')
-grid on;
-axis equal;
-%%
-close all
-% 初始化圖形
-figure;
-h = plot3(NaN, NaN, NaN, '.');  % 初始化一個空的點圖對象
+plot(x_r,y_r,'.')
+xlabel('TM2 xr(cm)');
+ylabel('TM2 yr(cm)');
 grid on;
 axis equal;
 
+figure(8)
+plot3(x_r,y_r,altcm1,'.')
+xlabel('TM2 xr(cm)');
+ylabel('TM2 yr(cm)');
+zlabel('Altitude(cm)');
+grid on;
+axis equal;
+
+% 初始化圖形
+figure(9)
+h = plot3(NaN, NaN, NaN, '.');  % 初始化一個空的點圖對象
+
 % 設置圖形屬性
 axis tight;  % 自動調整軸範圍
-xlabel('X');
-ylabel('Y');
-zlabel('Altitude');
+xlabel('TM2 xr(cm)');
+ylabel('TM2 yr(cm)');
+zlabel('Altitude(cm)');
 title('3D Animation');
+grid on;
+axis equal;
 
 % 循環繪製每一幀
 for i = 1:length(x_r)
     % 更新數據
     set(h, 'XData', x_r(1:i), 'YData', y_r(1:i), 'ZData', altcm1(1:i));
-    pause(0.01);  % 你可以根據需要調整這個時間
-    if mod(i, 1) == 0  % 每10幀更新一次
+%     view([0.0 90.0]) %俯視角
+    if mod(i, 1) == 0  % 每50幀更新一次
         drawnow;
     end
 end
