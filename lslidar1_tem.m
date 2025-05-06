@@ -61,6 +61,5 @@ y = T_all.(plot_vars{idx});
 plot(x, smooth(y,smoothk), '.');
 % plot(smooth(y,smoothk), '-o'); % 以檔案排列
 title(plot_vars{idx}, 'Interpreter', 'none');
-xlabel('time', 'Interpreter', 'none');
 ylabel(plot_vars{idx}, 'Interpreter', 'none');
 grid on;
