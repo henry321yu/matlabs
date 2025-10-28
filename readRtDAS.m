@@ -6,7 +6,7 @@ close all;
 samples = 2560;  % ← 需與當時 Acquisition Parameter 中設定的 sampling length 一致
 
 % 指定檔案路徑
-filePath = 'C:\Users\sgrc-325\Desktop\2025-10-28_11-37-15.bin';
+filePath = 'E:\RtDAS\4_DasTcpClient\2025-10-28_11-37-15.bin';
 
 % 開啟檔案
 fileID = fopen(filePath, 'rb');
