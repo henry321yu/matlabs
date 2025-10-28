@@ -4,7 +4,7 @@ close all;
 
 % ====== 使用者設定 ======
 samples = 2560;  % 每幀取樣點數（依你的 Acquisition 設定）
-filePath = fullfile('C:\Users\sgrc-325\Desktop', '2025-10-28_11-37-15.bin');
+filePath = fullfile('E:\RtDAS\4_DasTcpClient', '2025-10-28_11-37-15.bin');
 % ========================
 
 % 確認檔案存在
