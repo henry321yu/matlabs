@@ -3,8 +3,10 @@ clear;
 close all;
 
 % ====== 使用者設定 ======
-samples = 2560;  % 每幀取樣點數（依你的 Acquisition 設定）
-filePath = fullfile('E:\RtDAS\4_DasTcpClient', '2025-10-28_11-37-15.bin');
+samples = 5120;  % 每幀取樣點數（依你的 Acquisition 設定）
+% filePath = fullfile('E:\RtDAS\4_DasTcpClient', '2025-10-28_11-37-15.bin');
+filePath = fullfile('C:\Users\sgrc - 325\Desktop\git\das\get\das_data', 'raw_data_2025-10-31_14-32-57.bin');
+% filePath = fullfile('C:\Users\sgrc - 325\Desktop\git\das\get\das_data', '2025-10-31_14-59-01.bin');
 % ========================
 
 % 確認檔案存在
