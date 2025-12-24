@@ -78,7 +78,7 @@ fprintf('Trigger      : %s\n', meta.Trigger);
 fprintf('Sample Rate  : %.0f sps\n', Fs);
 fprintf('Record Time  : %s\n', meta.RecordTime);
 fprintf('Pre-trigger  : %.3f sec\n', preT);
-fprintf('Mic Peak     : %.3f Pa @ %.4f sec\n', MicL1(idx), t(idx));
+fprintf('Mic Peak     : %.3f Pa @ %s\n', MicL1(idx), datestr(peakDT,'HH:MM:SS.FFF'));
 fprintf('===========================\n');
 
 %% ================ 繪圖 =================
