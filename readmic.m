@@ -66,21 +66,8 @@ t = (0:N-1).' / Fs + preT;
 
 %% 最大值
 [maxMic, idx] = max(abs(MicL1));
-
-%% ================ 繪圖 =================
-figure;
-plot(t, MicL1,'LineWidth',1.2); hold on;
-plot(t(idx), MicL1(idx),'ro','LineWidth',1.5);
-grid on;
-
-xlabel('Time (sec)');
-ylabel('Mic Pressure (Pa)');
-title('MiniMate Plus – MicL1 Full Waveform');
-
-text(t(idx), MicL1(idx), ...
-    sprintf('  Peak = %.3f Pa @ %.4f s', MicL1(idx), t(idx)), ...
-    'VerticalAlignment','bottom');
-%% ======================================
+eventDT = datetime(meta.EventTime,'InputFormat','HH:mm:ss');
+peakDT = eventDT + seconds(t(idx));
 
 %% 印出重點 Metadata
 fprintf('\n===== Event Metadata =====\n');
@@ -93,3 +80,26 @@ fprintf('Record Time  : %s\n', meta.RecordTime);
 fprintf('Pre-trigger  : %.3f sec\n', preT);
 fprintf('Mic Peak     : %.3f Pa @ %.4f sec\n', MicL1(idx), t(idx));
 fprintf('===========================\n');
+
+%% ================ 繪圖 =================
+figure;
+plot(t, MicL1,'LineWidth',1.2); hold on;
+plot(t(idx), MicL1(idx),'ro','LineWidth',1.5);
+grid on;
+
+xlabel('Time (sec)');
+ylabel('Mic Pressure (Pa)');
+title({
+    'MiniMate Plus – MicL1 event'
+    ['Date: ' meta.EventDate ...
+     '   Time: ' meta.EventTime ...
+     '   Record: ' meta.RecordTime]
+    }, 'Interpreter','none')
+
+
+text(t(idx), MicL1(idx), ...
+    sprintf('  Peak = %.3f Pa @ %s', ...
+            MicL1(idx), datestr(peakDT,'HH:MM:SS.FFF')), ...
+    'VerticalAlignment','bottom');
+
+%% ======================================
